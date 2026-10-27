@@ -2,8 +2,6 @@ use std::collections::BTreeMap;
 
 use raylib::{RaylibHandle, RaylibThread, drawing::RaylibDraw, prelude::*};
 
-use crate::error::error_if;
-
 
 
 pub struct SpriteSheet {
@@ -12,9 +10,9 @@ pub struct SpriteSheet {
 }
 
 pub struct Sprite {
-	frame : usize,
-	pos : [f32; 2],
-	scale : [f32; 2],
+	pub frame : usize,
+	pub pos : [f32; 2],
+	pub scale : [f32; 2],
 }
 
 pub struct SpriteBatch {
@@ -38,10 +36,8 @@ impl Sprite {
 
 impl SpriteSheet {
 	pub fn new(rl : &mut RaylibHandle, thread : & RaylibThread, path : &str, frames : [u16; 2]) -> Self {
-		Self {
-			texture: error_if(rl.load_texture(&thread, path)),
-			frames
-		}
+		let texture = rl.load_texture(thread, path).unwrap_or_else(|err| panic!("Failed to load texture {}:\n\t{}", path, err));
+		Self { texture, frames }
 	}
 }
 
@@ -53,16 +49,23 @@ impl SpriteBatch {
 		}
 	}
 
-	pub fn add_sprite(&mut self, uuid: u64, sprite : Sprite) {
+	pub fn get_sprite(&mut self, uuid : u64) -> &mut Sprite {
+		self.queue.get_mut(&uuid).unwrap_or_else(|| panic!("Sprite does not exist!"))
+	}
+
+	pub fn add_sprite(&mut self, uuid : u64, sprite : Sprite) {
 		self.queue.insert(uuid, sprite);
 	}
 
 	pub fn render(&self, d : &mut raylib::drawing::RaylibDrawHandle) {
-		let sw = self.sheet.texture.width as f32 / self.sheet.frames[0] as f32;
-		let sh = self.sheet.texture.height as f32 / self.sheet.frames[1] as f32;
+		let sw = (self.sheet.texture.width / self.sheet.frames[0] as i32) as f32;
+		let cols = self.sheet.frames[0] as usize;
+		let sh = (self.sheet.texture.height / self.sheet.frames[1] as i32) as f32;
 		for (_, sprite) in self.queue.iter() {
+			let col = (sprite.frame % cols) as f32;
+			let row = (sprite.frame / cols) as f32;
 			d.draw_texture_pro(&self.sheet.texture, Rectangle::new(
-				0.0, 0.0, sw, sh
+				col * sw, row * sh, sw, sh
 			),
 			Rectangle::new(
 				sprite.pos[0], sprite.pos[1],
