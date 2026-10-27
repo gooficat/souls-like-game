@@ -42,7 +42,7 @@ impl Game {
 
 	pub fn init(&mut self) {
 		self.renderer.add_sheet(SpriteSheet::new(&mut self.rl, &self.thread, "./res/tilemap.png", [1, 1]));
-		self.renderer.get_batch(0).add_sprite(1, Sprite::new([128.0, 128.0]));
+		self.renderer.get_batch(0).add_sprite(1, Sprite::new([3.0, 3.0]));
 	}
 
 	pub fn tick(&mut self, dt : f32) {

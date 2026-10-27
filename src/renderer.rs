@@ -1,6 +1,6 @@
-use std::{collections::HashMap};
+use std::collections::BTreeMap;
 
-use raylib::{RaylibHandle, RaylibThread, drawing::RaylibDraw, ffi::{Color, Rectangle, Vector2}};
+use raylib::{RaylibHandle, RaylibThread, drawing::RaylibDraw, prelude::*};
 
 use crate::error::error_if;
 
@@ -8,17 +8,17 @@ use crate::error::error_if;
 
 pub struct SpriteSheet {
 	texture : raylib::core::texture::Texture2D,
-	frames : [i16; 2],
+	frames : [u16; 2],
 }
 
 pub struct Sprite {
 	frame : usize,
 	pos : [f32; 2],
-	size : [f32; 2],
+	scale : [f32; 2],
 }
 
 pub struct SpriteBatch {
-	queue : HashMap<u64, Sprite>,
+	queue : BTreeMap<u64, Sprite>,
 	sheet : SpriteSheet,
 }
 
@@ -27,17 +27,17 @@ pub struct Renderer {
 }
 
 impl Sprite {
-	pub fn new(size : [f32; 2]) -> Self {
+	pub fn new(scale : [f32; 2]) -> Self {
 		Self {
 			frame: 0,
 			pos: [0.0, 0.0],
-			size,
+			scale,
 		}
 	}
 }
 
 impl SpriteSheet {
-	pub fn new(rl : &mut RaylibHandle, thread : & RaylibThread, path : &str, frames : [i16; 2]) -> Self {
+	pub fn new(rl : &mut RaylibHandle, thread : & RaylibThread, path : &str, frames : [u16; 2]) -> Self {
 		Self {
 			texture: error_if(rl.load_texture(&thread, path)),
 			frames
@@ -48,7 +48,7 @@ impl SpriteSheet {
 impl SpriteBatch {
 	pub fn new(sheet : SpriteSheet) -> Self {
 		Self {
-			queue: HashMap::new(),
+			queue: BTreeMap::new(),
 			sheet,
 		}
 	}
@@ -66,7 +66,7 @@ impl SpriteBatch {
 			),
 			Rectangle::new(
 				sprite.pos[0], sprite.pos[1],
-				sw * sprite.size[0], sh * sprite.size[1]
+				sw * sprite.scale[0], sh * sprite.scale[1]
 			), Vector2::new(0.0, 0.0), 0.0, Color::WHITE);
 		}
 	}
@@ -85,11 +85,11 @@ impl Renderer {
 	}
 
 	pub fn add_sheet(&mut self, sheet : SpriteSheet) -> usize {
-		self.batches.push(SpriteBatch { queue: HashMap::new(), sheet });
+		self.batches.push(SpriteBatch::new(sheet));
 		self.batches.len() - 1
 	}
 
-	pub fn render(&mut self, rl : &mut RaylibHandle, thread : &mut RaylibThread) {
+	pub fn render(&mut self, rl : &mut RaylibHandle, thread : &RaylibThread) {
 		let mut d = rl.begin_drawing(&thread);
 		d.clear_background(raylib::color::Color::REBECCAPURPLE);
 
