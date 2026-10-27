@@ -19,8 +19,8 @@ impl Timer {
 	pub fn tick(&mut self, game: &mut Game, delta : f32) {
 		self.elapsed += delta;
 		if self.elapsed >= self.duration {
+			self.elapsed -= self.duration;
 			(self.callback)(game);
-			self.elapsed = 0.0;
 		}
 	}
 }

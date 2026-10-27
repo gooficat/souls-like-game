@@ -5,7 +5,7 @@ use raylib::{RaylibHandle, RaylibThread, drawing::RaylibDraw, prelude::*};
 
 
 pub struct SpriteSheet {
-	texture : raylib::core::texture::Texture2D,
+	pub texture : raylib::core::texture::Texture2D,
 	frames : [u16; 2],
 }
 
@@ -17,7 +17,7 @@ pub struct Sprite {
 
 pub struct SpriteBatch {
 	queue : BTreeMap<u64, Sprite>,
-	sheet : SpriteSheet,
+	pub sheet : SpriteSheet,
 }
 
 pub struct Renderer {

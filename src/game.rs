@@ -2,7 +2,7 @@
 	use std::{collections::BTreeMap, mem::take};
 
 	use raylib::{RaylibHandle, RaylibThread};
-	use crate::{renderer::{Renderer, Sprite, SpriteSheet}, time::{self, Timer}, world::World};
+	use crate::{renderer::{self, Renderer, Sprite, SpriteSheet}, time::{self, Timer}, world::World};
 
 	#[derive(PartialEq, Eq)]
 	enum GameState {
@@ -23,21 +23,24 @@
 	}
 
 	impl Game {
-		pub fn new(size : [i32 ; 2], tick_speed : u8) -> Self {
-			let (rl, thread) = raylib::init()
+		pub fn new(size : [i32 ; 2], tick_speed : u8, path : &str) -> Self {
+			let (mut rl, mut thread) = raylib::init()
 				.size(size[0], size[1])
 				.title("Game")
 				.resizable()
 				.vsync()
 				.build();
 
+			rl.set_target_fps(60);
+			let mut renderer =  Renderer::new();
+
 			Self {
-				world: World::new(),
+				world: World::load(path, &mut rl, &mut thread, &mut renderer),
 				rl,
 				thread,
 				state: GameState::Playing,
-				renderer: Renderer::new(),
 				tick_speed,
+				renderer,
 				timers: BTreeMap::new(),
 			}
 		}
@@ -47,14 +50,7 @@
 		}
 
 		pub fn init(&mut self) {
-			self.renderer.add_sheet(SpriteSheet::new(&mut self.rl, &self.thread, "./res/tilemap_packed.png", [12,11]));
-			self.renderer.get_batch(0).add_sprite(1, Sprite::new([10.0, 10.0]));
 
-
-			self.add_timer(1, Timer::new(0.5,
-				Box::new(|game: &mut Game| {
-				game.renderer.get_batch(0).get_sprite(1).frame += 1;
-			})));
 		}
 
 		pub fn tick(&mut self, dt : f32) {
@@ -83,7 +79,7 @@
 			while self.state != GameState::Quitting {
 				let dt = self.rl.get_frame_time();
 				self.listen();
-				self.tick(self.tick_speed as f32 / dt);
+				self.tick(self.tick_speed as f32 * dt);
 				self.render();
 			}
 		}
