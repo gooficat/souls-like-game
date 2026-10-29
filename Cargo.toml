@@ -1,9 +1,0 @@
-[package]
-name = "souls-like-game"
-version = "0.1.0"
-edition = "2024"
-
-[dependencies]
-raylib = "6.0.0"
-serde = { version = "1.0.229", features = ["derive"] }
-toml = "1.1.8"
