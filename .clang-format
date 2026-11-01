@@ -1,5 +1,4 @@
-Language: C
-BasedOnStyle: Microsoft
-BreakBeforeBraces: Allman
-UseTab: Always
+Language: Cpp
+BasedOnStyle: microsoft
 TabWidth: 4
+UseTab: Always
