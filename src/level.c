@@ -2,17 +2,17 @@
 #include "error.h"
 #include <stdio.h>
 
-int load_level(struct world * world, char const * path)
+enum return_code load_level(struct world * world, char const * path)
 {
 	FILE * file;
 	if (!path || !world)
 	{
-		return ERROR_NULL_POINTER_PASSED;
+		return RETURN_CODE_NULL_POINTER_PASSED;
 	}
 	file = fopen(path, "rt");
 	if (!file)
 	{
-		return ERROR_SUB_CALL_FAILED;
+		return RETURN_CODE_SUB_CALL_FAILED;
 	}
-	return 0;
+	return RETURN_CODE_OK;
 }

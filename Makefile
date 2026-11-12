@@ -14,6 +14,8 @@ TARGET := $(shell basename $(shell pwd))
 
 SUBTARGETS :=
 
+PREDEPS := glfw
+
 EXEC_PREFIX :=
 EXEC_SUFFIX := elf
 
@@ -32,15 +34,18 @@ SRCS := $(shell find $(SRC_DIR) -name "*.c")
 OBJS := $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(SRCS))
 DEPS := $(OBJS:.o=.d)
 
-LINKS := $(patsubst %,$(BIN_DIR)/lib%.so,$(SUBTARGETS))
+INSIDE_LINKS := $(patsubst %,$(BIN_DIR)/lib%.so,$(SUBTARGETS))
+LINKS := $(INSIDE_LINKS) $(PREDEPS)
 
 OUT = $(BIN_DIR)/$(EXEC_PREFIX)$(TARGET).$(EXEC_SUFFIX)
 
 .PHONY: $(TARGET) clean FORCE
 
+.PHONY: $(LINKS) clean
+
 $(TARGET): $(OUT)
 
-$(LINKS): $(BIN_DIR)/lib%.so: FORCE
+$(INSIDE_LINKS): $(BIN_DIR)/lib%.so: FORCE
 	$(MAKE) -C $* BIN_DIR=$(abspath $(BIN_DIR))
 
 FORCE:
@@ -48,7 +53,7 @@ FORCE:
 
 $(OUT): $(LINKS) $(OBJS)
 	@mkdir -p $(dir $@)
-	$(CC) -o $@ $(OBJS) $(CFLAGS) $(OUT_CFLAGS) $(patsubst %,-l%,$(SUBTARGETS))
+	$(CC) -o $@ $(OBJS) $(CFLAGS) $(OUT_CFLAGS) $(patsubst %,-l%,$(LINKS))
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	mkdir -p $(dir $@)
