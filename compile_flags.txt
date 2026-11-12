@@ -1,0 +1,12 @@
+-g
+-O0
+-std=c90
+-Weverything
+-Wno-padded
+-Wno-unsafe-buffer-usage
+-Wno-declaration-after-statement
+-Wno-disabled-macro-expansion
+-Wno-reserved-identifier
+-Wswitch-default
+-Werror
+-I./src

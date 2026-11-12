@@ -1,0 +1,7 @@
+BasedOnStyle: Microsoft
+BreakBeforeBraces: Allman
+TabWidth: 4
+UseTab: Always
+UseCRLF: false
+QualifierAlignment: Right
+PointerAlignment: Middle
